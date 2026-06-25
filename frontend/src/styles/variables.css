@@ -1,0 +1,48 @@
+:root {
+  /* Color Palette */
+  --primary-hue: 212;
+  --primary: hsl(var(--primary-hue), 100%, 60%);
+  --primary-glow: hsla(var(--primary-hue), 100%, 60%, 0.15);
+  --primary-hover: hsl(var(--primary-hue), 100%, 50%);
+  
+  --secondary: hsl(220, 14%, 60%);
+  --background: hsl(222, 47%, 6%);
+  --panel-bg: rgba(13, 20, 38, 0.45);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --panel-border-hover: rgba(255, 255, 255, 0.15);
+
+  --text-primary: hsl(210, 40%, 98%);
+  --text-secondary: hsl(215, 20%, 75%);
+  --text-muted: hsl(215, 15%, 50%);
+
+  --success: hsl(142, 72%, 48%);
+  --success-glow: hsla(142, 72%, 48%, 0.15);
+  
+  --error: hsl(350, 89%, 60%);
+  --error-glow: hsla(350, 89%, 60%, 0.15);
+  
+  --warning: hsl(38, 92%, 50%);
+  --warning-glow: hsla(38, 92%, 50%, 0.15);
+
+  /* Fonts */
+  --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Layout and Styling Templates */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 9999px;
+
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.6);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+  /* Neon Blur Overlays */
+  --purple-glow: radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+  --blue-glow: radial-gradient(circle at 10% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%);
+}
