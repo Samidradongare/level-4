@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/node";
 import dotenv from "dotenv";
 import * as path from "path";
 
-dotenv.config({ path: path.resolve(__dirname, "../backend/.env") });
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 /**
  * Initialize Sentry instrumentation tracking inside backend env

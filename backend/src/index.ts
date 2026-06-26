@@ -12,6 +12,10 @@ import authRoutes from './routes/auth';
 import userRoutes from './routes/user';
 import usageRoutes from './routes/usage';
 import analyticsRoutes from './routes/analytics';
+import { initSentry } from './utils/setup-sentry';
+
+// Initialize Sentry Tracking
+initSentry(env.NODE_ENV);
 
 const app = express();
 

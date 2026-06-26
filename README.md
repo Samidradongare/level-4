@@ -38,7 +38,7 @@ UsagePay is a production-ready metered payment dApp built on the Stellar testnet
 
 ## 📂 Repository Structure
 ```
-Usage pay/
+UsagePay/
 ├── contract/             # Soroban Smart Contract (Rust)
 │   ├── Cargo.toml        # Cargo dependencies
 │   └── src/
