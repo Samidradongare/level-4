@@ -10,8 +10,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "@stellar/stellar-sdk": "^11.3.0",
     "@sentry/node": "^7.114.0",
+    "@stellar/stellar-sdk": "^12.3.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",

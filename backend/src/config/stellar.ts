@@ -1,4 +1,4 @@
-import { rpc, Horizon, Networks } from '@stellar/stellar-sdk';
+import { rpc, Networks, Horizon } from '@stellar/stellar-sdk';
 import { env } from './env';
 import { logger } from '../utils/logger';
 
@@ -13,11 +13,11 @@ try {
       ? 'https://horizon.stellar.org'
       : 'https://horizon-testnet.stellar.org'
   );
-  
+
   if (env.STELLAR_NETWORK === 'PUBLIC') {
     networkPassphrase = Networks.PUBLIC;
   }
-  
+
   logger.info(`Stellar config initialized for network: ${env.STELLAR_NETWORK}`);
 } catch (error: any) {
   logger.error(`Stellar SDK config failed: ${error.message}`);

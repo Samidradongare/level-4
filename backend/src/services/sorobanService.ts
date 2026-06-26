@@ -1,185 +1,139 @@
-import { Keypair, TransactionBuilder, xdr, Contract, Address, scVal } from '@stellar/stellar-sdk';
-import { rpcServer, networkPassphrase, CONTRACT_ADDRESS, SERVICE_PRIVATE_KEY } from '../config/stellar';
+import { Keypair, TransactionBuilder, xdr, Contract, Address, rpc } from '@stellar/stellar-sdk';
+import { rpcServer, horizonServer, networkPassphrase, CONTRACT_ADDRESS, SERVICE_PRIVATE_KEY, SERVICE_WALLET_ADDRESS } from '../config/stellar';
 import { logger } from '../utils/logger';
 import { env } from '../config/env';
 
-// Memory fallback store for on-chain balances and transactions in mock mode
-const mockLedgerBalances: Record<string, number> = {};
-const mockLedgerTxs: any[] = [];
+// In-memory mock store for simulation mode
+const mockBalances: Record<string, number> = {};
+const mockTxs: any[] = [];
 let mockTxCounter = 1000;
 
 export class SorobanService {
-  private isMockMode: boolean;
+  private readonly isMock: boolean;
 
   constructor() {
-    // If no contract address or service key is provided, we default to mock mode
-    this.isMockMode = !CONTRACT_ADDRESS || !SERVICE_PRIVATE_KEY || SERVICE_PRIVATE_KEY.startsWith('SDXX') || env.OPENAI_API_KEY === 'mock-key-for-development';
-    if (this.isMockMode) {
-      logger.info('SorobanService is running in SIMULATION/MOCK mode.');
+    this.isMock =
+      !CONTRACT_ADDRESS ||
+      !SERVICE_PRIVATE_KEY ||
+      SERVICE_PRIVATE_KEY.startsWith('SDXX') ||
+      env.OPENAI_API_KEY === 'mock-key-for-development';
+    if (this.isMock) {
+      logger.info('SorobanService running in MOCK mode');
     } else {
-      logger.info(`SorobanService is configured for contract: ${CONTRACT_ADDRESS}`);
+      logger.info(`SorobanService configured for contract ${CONTRACT_ADDRESS}`);
     }
   }
 
-  /**
-   * Fetch current account balance from Soroban contract
-   */
+  /** Retrieve user balance from the contract */
   async getBalance(userAddress: string): Promise<number> {
-    if (this.isMockMode) {
-      return mockLedgerBalances[userAddress] || 100000000; // Default 10 XLM (10^7 stroops = 1 XLM, so 10^8 stroops = 10 XLM)
+    if (this.isMock) {
+      return mockBalances[userAddress] ?? 100000000; // default 10 XLM in stroops
     }
-
     try {
       const contract = new Contract(CONTRACT_ADDRESS);
-      const userScVal = Address.fromString(userAddress).toScVal();
-      
-      const response = await rpcServer.simulateTransaction(
-        new TransactionBuilder(
-          await rpcServer.getLatestLedger(),
-          { fee: '100' }
-        )
-        .addOperation(
-          contract.call('get_balance', userScVal)
-        )
-        .build()
-      );
-
-      if (rpc.Api.isSimulationSuccess(response)) {
-        const resultVal = response.result?.retval;
-        if (resultVal) {
-          // Parse i128 ScVal to number
-          return Number(xdr.ScVal.fromXDR(resultVal.toXDR()).i128().lo());
+      const userSc = Address.fromString(userAddress).toScVal();
+      const tx = new TransactionBuilder(await horizonServer.loadAccount(SERVICE_WALLET_ADDRESS), { fee: '100' })
+        .addOperation(contract.call('get_balance', userSc))
+        .build();
+      const sim = await rpcServer.simulateTransaction(tx);
+      if (rpc.Api.isSimulationSuccess(sim)) {
+        const retval = sim.result?.retval;
+        if (retval) {
+          const i128 = xdr.ScVal.fromXDR(retval.toXDR()).i128();
+          return Number(i128.lo());
         }
       }
       return 0;
-    } catch (error: any) {
-      logger.error(`Soroban getBalance RPC error: ${error.message}. Returning fallback.`);
-      return mockLedgerBalances[userAddress] || 0;
+    } catch (e: any) {
+      logger.error(`getBalance RPC error: ${e.message}`);
+      return mockBalances[userAddress] ?? 0;
     }
   }
 
-  /**
-   * Call debit() on the Soroban contract to bill the user
-   */
+  /** Debit amount from user and credit service */
   async debit(
     userAddress: string,
     serviceAddress: string,
     amountStroops: number
   ): Promise<{ txId: string; success: boolean }> {
-    if (this.isMockMode) {
-      const currentBalance = await this.getBalance(userAddress);
-      if (currentBalance < amountStroops) {
-        logger.warn(`Mock Debit failed: Insufficient balance for ${userAddress}. Need ${amountStroops}, have ${currentBalance}`);
+    if (this.isMock) {
+      const bal = await this.getBalance(userAddress);
+      if (bal < amountStroops) {
+        logger.warn('Mock debit failed: insufficient funds');
         return { txId: '', success: false };
       }
-      
-      // Update mock balance
-      mockLedgerBalances[userAddress] = currentBalance - amountStroops;
-      mockLedgerBalances[serviceAddress] = (mockLedgerBalances[serviceAddress] || 0) + amountStroops;
-      
-      const mockTxId = `tx_hash_sim_${++mockTxCounter}_${Math.floor(Math.random() * 900000 + 100000)}`;
-      mockLedgerTxs.push({
+      mockBalances[userAddress] = bal - amountStroops;
+      mockBalances[serviceAddress] = (mockBalances[serviceAddress] ?? 0) + amountStroops;
+      const mockId = `tx_hash_sim_${++mockTxCounter}_${Math.floor(Math.random() * 900000 + 100000)}`;
+      mockTxs.push({
         id: mockTxCounter,
         user: userAddress,
         service: serviceAddress,
         amount: amountStroops,
         timestamp: Math.floor(Date.now() / 1000),
         status: 'completed',
-        tx_hash: mockTxId
+        tx_hash: mockId
       });
-
-      logger.info(`Mock Debit success: billed ${userAddress} ${amountStroops} stroops. New balance: ${mockLedgerBalances[userAddress]}`);
-      return { txId: mockTxId, success: true };
+      logger.info(`Mock debit succeeded. New balance: ${mockBalances[userAddress]}`);
+      return { txId: mockId, success: true };
     }
-
     try {
-      const serviceKeypair = Keypair.fromSecret(SERVICE_PRIVATE_KEY);
+      const serviceKey = Keypair.fromSecret(SERVICE_PRIVATE_KEY);
       const contract = new Contract(CONTRACT_ADDRESS);
-      
       const userSc = Address.fromString(userAddress).toScVal();
       const serviceSc = Address.fromString(serviceAddress).toScVal();
-      const amountSc = scVal.fromI128(xdr.Int128Parts.fromInt(amountStroops));
-
-      const tx = new TransactionBuilder(
-        await rpcServer.getLatestLedger(),
-        {
-          fee: '10000',
-          networkPassphrase,
-        }
-      )
-      .addOperation(
-        contract.call('debit', userSc, serviceSc, amountSc)
-      )
-      .setTimeout(30)
-      .build();
-
-      tx.sign(serviceKeypair);
-      
-      // Send transaction
-      const response = await rpcServer.sendTransaction(tx);
-      if (response.status === 'PENDING') {
-        let status = response.status;
-        let txResult;
-        
-        // Poll for result
+      const amountSc = xdr.ScVal.scvI128(new xdr.Int128Parts({
+  lo: xdr.Uint64.fromString(amountStroops.toString()),
+  hi: xdr.Uint64.fromString('0')
+}));
+      const tx = new TransactionBuilder(await horizonServer.loadAccount(SERVICE_WALLET_ADDRESS), {
+        fee: '10000',
+        networkPassphrase,
+      })
+        .addOperation(contract.call('debit', userSc, serviceSc, amountSc))
+        .setTimeout(30)
+        .build();
+      tx.sign(serviceKey);
+      const sendResp = await rpcServer.sendTransaction(tx);
+      if (sendResp.status === 'PENDING') {
         for (let i = 0; i < 10; i++) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          const poll = await rpcServer.getTransaction(response.hash);
-          status = poll.status;
-          if (status === 'SUCCESS') {
-            txResult = poll;
-            break;
-          } else if (status === 'FAILED') {
-            break;
+          await new Promise(r => setTimeout(r, 1000));
+          const poll = await rpcServer.getTransaction(sendResp.hash);
+          if (poll.status === 'SUCCESS') {
+            logger.info(`Debit succeeded: ${sendResp.hash}`);
+            return { txId: sendResp.hash, success: true };
           }
-        }
-
-        if (status === 'SUCCESS' && txResult) {
-          logger.info(`Soroban debit contract tx succeeded: ${response.hash}`);
-          return { txId: response.hash, success: true };
+          if (poll.status === 'FAILED') break;
         }
       }
-      
-      logger.error(`Soroban debit failed or timed out: status ${response.status}`);
+      logger.error(`Debit failed or timed out: ${sendResp.status}`);
       return { txId: '', success: false };
-    } catch (error: any) {
-      logger.error(`Soroban debit blockchain failure: ${error.message}`);
+    } catch (e: any) {
+      logger.error(`debit RPC error: ${e.message}`);
       return { txId: '', success: false };
     }
   }
 
-  /**
-   * Get transaction history for user from contract ledger
-   */
+  /** Retrieve transaction history for a user */
   async getTransactionHistory(userAddress: string, limit: number = 20): Promise<any[]> {
-    if (this.isMockMode) {
-      return mockLedgerTxs
+    if (this.isMock) {
+      return mockTxs
         .filter(t => t.user === userAddress || t.service === userAddress)
         .slice(-limit)
         .reverse();
     }
-
     try {
       const contract = new Contract(CONTRACT_ADDRESS);
-      const userScVal = Address.fromString(userAddress).toScVal();
-      const limitScVal = scVal.fromU32(limit);
-      
-      const response = await rpcServer.simulateTransaction(
-        new TransactionBuilder(
-          await rpcServer.getLatestLedger(),
-          { fee: '100' }
-        )
-        .addOperation(
-          contract.call('get_transaction_history', userScVal, limitScVal)
-        )
-        .build()
-      );
-
-      if (rpc.Api.isSimulationSuccess(response)) {
-        const resultVal = response.result?.retval;
-        if (resultVal) {
-          // Parse transaction array
-          const vec = resultVal.vec();
+      const userSc = Address.fromString(userAddress).toScVal();
+      const limitSc = xdr.ScVal.scvU32(limit);
+      const tx = new TransactionBuilder(await horizonServer.loadAccount(SERVICE_WALLET_ADDRESS), { fee: '100' })
+        .addOperation(contract.call('get_transaction_history', userSc, limitSc))
+        .build();
+      const sim = await rpcServer.simulateTransaction(tx);
+      if (rpc.Api.isSimulationSuccess(sim)) {
+        const retval = sim.result?.retval;
+        if (retval) {
+          const vec = retval.vec();
           if (vec) {
             return vec.map((item: any) => {
               const obj = item.obj();
@@ -196,36 +150,61 @@ export class SorobanService {
         }
       }
       return [];
-    } catch (error: any) {
-      logger.error(`Soroban getTransactionHistory RPC error: ${error.message}. Returning mock cache.`);
-      return mockLedgerTxs.filter(t => t.user === userAddress).reverse();
+    } catch (e: any) {
+      logger.error(`getTransactionHistory RPC error: ${e.message}`);
+      return mockTxs.filter(t => t.user === userAddress).reverse();
     }
   }
 
-  /**
-   * Helper to set mock balance for testing
-   */
-  setMockBalance(userAddress: string, amountStroops: number) {
-    mockLedgerBalances[userAddress] = amountStroops;
-    logger.info(`Set mock ledger balance for ${userAddress} to ${amountStroops} stroops.`);
+  // Helper methods for tests / dev
+  setMockBalance(address: string, stroops: number) {
+    mockBalances[address] = stroops;
+    logger.info(`Mock balance set for ${address}: ${stroops}`);
   }
 
-  /**
-   * Helper to add a mock transaction for testing
-   */
-  addMockTransaction(userAddress: string, serviceAddress: string, amountStroops: number, status: string = 'completed') {
-    const mockTxId = `tx_hash_sim_${++mockTxCounter}_${Math.floor(Math.random() * 900000 + 100000)}`;
-    mockLedgerTxs.push({
+  addMockTransaction(user: string, service: string, amount: number, status: string = 'completed') {
+    const mockId = `tx_hash_sim_${++mockTxCounter}_${Math.floor(Math.random() * 900000 + 100000)}`;
+    mockTxs.push({
       id: mockTxCounter,
-      user: userAddress,
-      service: serviceAddress,
-      amount: amountStroops,
+      user,
+      service,
+      amount,
       timestamp: Math.floor(Date.now() / 1000),
       status,
-      tx_hash: mockTxId
+      tx_hash: mockId
     });
-    return mockTxId;
+    return mockId;
   }
 }
 
 export const sorobanService = new SorobanService();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
