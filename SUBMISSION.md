@@ -15,11 +15,11 @@ UsagePay is a production-ready metered payment gateway built on the Stellar test
 
 | Component | Target URL |
 |---|---|
-| **Frontend Web App** | `https://usagepay.vercel.app` (replace with live link) |
-| **API Backend Server** | `https://usagepay-backend.up.railway.app` (replace with live link) |
+| **Frontend Web App** | <Live Frontend URL> |
+| **API Backend Server** | <Live Backend URL> |
 | **Soroban Contract Address** | `CA75UOY4D6I55OETD6Y6ZPXNGL2WCS5WJYYA3R3F5OZHMXL3F4DLUZPP` |
-| **Demo Video (YouTube)** | `https://youtu.be/xxxxxx` (replace with live link) |
-| **GitHub Repository** | `https://github.com/username/usagepay` (replace with live link) |
+| **Demo Video (YouTube)** | <Demo Video URL> |
+| **GitHub Repository** | https://github.com/Samidradongare/level-4 |
 
 ---
 

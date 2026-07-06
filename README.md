@@ -3,10 +3,10 @@
 UsagePay is a production-ready metered payment dApp built on the Stellar testnet. It introduces a pay-as-you-go billing model using a secure Soroban smart contract escrow. The primary showcase use case is **SmartNotes** (an AI study summarizer) where users pre-fund an escrow account in XLM, and are billed automatically per summary generated based on note character count.
 
 ### 🌐 Live Links & Demo
-- **Live Application:** [https://usagepay.vercel.app](https://usagepay.vercel.app) *(replace with live link)*
-- **API Server:** [https://usagepay-backend.up.railway.app](https://usagepay-backend.up.railway.app) *(replace with live link)*
+- **Live Application:** <Live Frontend URL>
+- **API Server:** <Live Backend URL>
 - **Soroban Contract Address:** `CA75UOY4D6I55OETD6Y6ZPXNGL2WCS5WJYYA3R3F5OZHMXL3F4DLUZPP`
-- **Demo Video:** [Watch on YouTube](https://youtu.be/xxxxxx) *(replace with live link)*
+- **Demo Video:** <Demo Video URL>
 
 ## 📸 Application Screenshots
 
