@@ -1,4 +1,4 @@
-import { logger } from '../utils/logger';
+
 
 // Interface matching Freighter global injection
 export interface FreighterAPI {

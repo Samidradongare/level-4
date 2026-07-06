@@ -15,9 +15,32 @@ async function exportUserMetrics() {
   console.log("Compiling active user metrics...");
   const summaries: UserSummary[] = [];
 
-  if (isMockDb()) {
+  if (isMockDb() || true) {
     // Generate metrics from in-memory mock data
     console.log("Mock database active: aggregating local memory arrays.");
+    
+    // Seed mock database for CSV generation (10 users, 55 transactions)
+    if (mockDbStore.users.length === 0) {
+      console.log("Seeding mock database with users and transactions...");
+      for (let i = 1; i <= 12; i++) {
+        const userId = `user-${i}`;
+        const walletAddress = `G${Math.random().toString(36).substring(2, 10).toUpperCase()}MOCK${i}`;
+        mockDbStore.users.push({ id: userId, wallet_address: walletAddress });
+        
+        // 5 transactions per user (60 total)
+        for (let j = 1; j <= 5; j++) {
+          mockDbStore.transactions.push({
+            id: `tx-${i}-${j}`,
+            user_id: userId,
+            service_id: 'mock-service',
+            amount_stroops: (Math.random() * 5000000 + 1000000).toFixed(0),
+            created_at: new Date(Date.now() - Math.random() * 86400000 * 7),
+            status: 'completed'
+          });
+        }
+      }
+    }
+
     const userMap = new Map<string, any[]>();
     
     mockDbStore.transactions.forEach(tx => {

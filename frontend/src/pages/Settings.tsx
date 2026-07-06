@@ -11,7 +11,7 @@ interface SettingsPageProps {
 }
 
 export const Settings: React.FC<SettingsPageProps> = ({ onBackToDashboard }) => {
-  const { user } = useAuth();
+  const { } = useAuth();
   const { balanceXlm, refreshBalance } = useBalance();
 
   const [withdrawAmount, setWithdrawAmount] = useState<string>('');

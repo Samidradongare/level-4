@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import useBalance from '../hooks/useBalance';
 import { useAuth } from '../context/AuthContext';
 import FundModal from './FundModal';
-import { RefreshCw, PlusCircle, AlertCircle, ArrowUpRight } from 'lucide-react';
+import { RefreshCw, PlusCircle, AlertCircle } from 'lucide-react';
 
 export const BalanceCard: React.FC = () => {
   const { user, isSimulatedWallet } = useAuth();

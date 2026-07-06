@@ -453,3 +453,6 @@ impl UsagePayContract {
         );
     }
 }
+
+#[cfg(test)]
+mod test;

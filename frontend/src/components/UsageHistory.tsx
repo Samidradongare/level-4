@@ -1,7 +1,7 @@
 import React from 'react';
 import { TransactionRecord } from '../hooks/useAnalytics';
 import { ExternalLink, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
-import { formatDateTime } from '../utils/formatters';
+
 
 interface UsageHistoryProps {
   transactions: TransactionRecord[];

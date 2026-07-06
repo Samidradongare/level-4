@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Sliders, RefreshCw, Check, AlertCircle } from 'lucide-react';
+import { Sliders, Check } from 'lucide-react';
 import LoadingSpinner from './LoadingSpinner';
 
 export const AutoTopupSettings: React.FC = () => {

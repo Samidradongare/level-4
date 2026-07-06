@@ -17,8 +17,9 @@ fn test_initialize_and_fund() {
     // Register token contract to represent native XLM
     let token_admin = Address::generate(&env);
     let token_contract_id = env.register_stellar_asset_contract(token_admin.clone());
+    let token_admin_client = token::StellarAssetClient::new(&env, &token_contract_id);
+    token_admin_client.mint(&user, &10_000_000);
     let token_client = token::Client::new(&env, &token_contract_id);
-    token_client.mint(&user, &10_000_000);
 
     // Register our contract
     let contract_id = env.register_contract(None, UsagePayContract);
@@ -66,8 +67,9 @@ fn test_rate_limiting() {
 
     let token_admin = Address::generate(&env);
     let token_contract_id = env.register_stellar_asset_contract(token_admin.clone());
+    let token_admin_client = token::StellarAssetClient::new(&env, &token_contract_id);
+    token_admin_client.mint(&user, &10_000_000);
     let token_client = token::Client::new(&env, &token_contract_id);
-    token_client.mint(&user, &10_000_000);
 
     let contract_id = env.register_contract(None, UsagePayContract);
     let client = UsagePayContractClient::new(&env, &contract_id);

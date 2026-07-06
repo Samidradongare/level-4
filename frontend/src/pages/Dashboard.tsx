@@ -6,7 +6,7 @@ import SmartNotesInterface from '../components/SmartNotesInterface';
 import UsageHistory from '../components/UsageHistory';
 import AnalyticsDashboard from '../components/AnalyticsDashboard';
 import useAnalytics from '../hooks/useAnalytics';
-import { Settings, LogOut, LayoutDashboard, Sliders } from 'lucide-react';
+import { LogOut, Sliders } from 'lucide-react';
 
 interface DashboardProps {
   onLogout: () => void;

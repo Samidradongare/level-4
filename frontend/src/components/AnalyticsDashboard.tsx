@@ -1,6 +1,6 @@
 import React from 'react';
 import { UsageMetric, TransactionRecord } from '../hooks/useAnalytics';
-import { TrendingUp, BarChart2, Award, AlertTriangle } from 'lucide-react';
+import { TrendingUp, BarChart2, Award } from 'lucide-react';
 
 interface AnalyticsDashboardProps {
   metrics: UsageMetric[];
