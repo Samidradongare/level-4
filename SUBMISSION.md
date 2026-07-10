@@ -25,13 +25,17 @@ UsagePay is a production-ready metered payment gateway built on the Stellar test
 
 ## 📸 Application Screenshots
 
-| **Product UI** | **Mobile Responsive Design** |
+| **Product UI** |
 |:---:|:---:|
-| ![Product UI](./screenshots/product_ui.png) | ![Mobile Design](./screenshots/mobile_design.png) |
+| ![Product UI](https://github.com/Samidradongare/level-4/blob/80371c265eecf96e469dc05933b3c9baf938dc1e/Screenshot%202026-07-11%20001232.png) |
+
+| **Mobile Responsive Design** |
+|:---:|
+| ![Mobile Design](https://github.com/Samidradongare/level-4/blob/45dc8a86060960c01b54b0fcadfea4303727aaef/Screenshot%202026-07-11%20002528.png) |
 
 | **Analytics & Monitoring Dashboard** |
 |:---:|
-| ![Analytics Dashboard](./screenshots/analytics_dashboard.png) |
+| ![Analytics Dashboard](https://github.com/Samidradongare/level-4/blob/f5f956b50b48b218c11909f78507ee6e6bef669b/Screenshot%202026-07-11%20001403.png) |
 
 ---
 
