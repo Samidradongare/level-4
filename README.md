@@ -7,7 +7,7 @@ UsagePay is a production-ready metered payment dApp built on the Stellar testnet
 - **API Server:** https://usagepay-backend.onrender.com
 - **Soroban Contract Address:** `CA75UOY4D6I55OETD6Y6ZPXNGL2WCS5WJYYA3R3F5OZHMXL3F4DLUZPP`
 - **Demo Video:** https://youtu.be/W6v58TUsITc?si=luFA9Yl6ZrnGwghf
--**User Wallet Interaction Proof** https://docs.google.com/spreadsheets/d/1gVuTdtlsWwoB5H7r4EYBYmkZvtf8-7sakyvPcW4L61A/edit?usp=sharing
+- **User Wallet Interaction Proof** https://docs.google.com/spreadsheets/d/1gVuTdtlsWwoB5H7r4EYBYmkZvtf8-7sakyvPcW4L61A/edit?usp=sharing
 
 ## 📸 Application Screenshots
 
