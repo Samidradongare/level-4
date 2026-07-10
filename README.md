@@ -10,13 +10,17 @@ UsagePay is a production-ready metered payment dApp built on the Stellar testnet
 
 ## 📸 Application Screenshots
 
-| **Product UI** | **Mobile Responsive Design** |
-|:---:|:---:|
-| ![Product UI](./screenshots/product_ui.png) | ![Mobile Design](./screenshots/mobile_design.png) |
+| **Product UI** |
+|:---:|
+| ![Product UI](c:\Users\Lenovo\Pictures\Screenshots\Screenshot 2026-07-11 001232.png) |
+
+| **Mobile Responsive Design** |
+|:---:|
+| ![Mobile Design](c:\Users\Lenovo\Pictures\Screenshots\Screenshot 2026-07-11 002528.png) |
 
 | **Analytics & Monitoring Dashboard** |
 |:---:|
-| ![Analytics Dashboard](./screenshots/analytics_dashboard.png) |
+| ![Analytics Dashboard](c:\Users\Lenovo\Pictures\Screenshots\Screenshot 2026-07-11 001403.png) |
 
 > ⚠️ **Note:** Screenshots above show the app running in simulated wallet mode. Replace with live production screenshots after deployment.
 
@@ -34,7 +38,7 @@ UsagePay is a production-ready metered payment dApp built on the Stellar testnet
 ## 🛠️ Tech Stack & Structure
 - **Smart Contract:** Soroban (Rust), cargo test environment
 - **Backend:** Node.js, Express, TypeScript, PostgreSQL (via connection pooling), Winston structured logger
-- **Frontend:** React, Vite, TypeScript, Freighter Wallet, HSL Variable Theming, SVG responsive charts
+- **Frontend:** React, Vite, TypeScript, Freighter Wallet, Glassmorphism UI, Mobile Responsive Design, HSL Variable Theming, SVG responsive charts
 
 ---
 
