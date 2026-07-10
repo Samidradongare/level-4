@@ -22,8 +22,6 @@ UsagePay is a production-ready metered payment dApp built on the Stellar testnet
 |:---:|
 | ![Analytics Dashboard](https://github.com/Samidradongare/level-4/blob/f5f956b50b48b218c11909f78507ee6e6bef669b/Screenshot%202026-07-11%20001403.png) |
 
-> ⚠️ **Note:** Screenshots above show the app running in simulated wallet mode. Replace with live production screenshots after deployment.
-
 
 ## ⚡ Key Features
 1. **On-Chain Escrow Accounts:** Secure deposits held by the `UsagePayContract` on-chain.
