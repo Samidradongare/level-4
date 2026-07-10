@@ -16,11 +16,11 @@ UsagePay is a production-ready metered payment dApp built on the Stellar testnet
 
 | **Mobile Responsive Design** |
 |:---:|
-| ![Mobile Design](c:\Users\Lenovo\Pictures\Screenshots\Screenshot 2026-07-11 002528.png) |
+| ![Mobile Design](https://github.com/Samidradongare/level-4/blob/45dc8a86060960c01b54b0fcadfea4303727aaef/Screenshot%202026-07-11%20002528.png) |
 
 | **Analytics & Monitoring Dashboard** |
 |:---:|
-| ![Analytics Dashboard](c:\Users\Lenovo\Pictures\Screenshots\Screenshot 2026-07-11 001403.png) |
+| ![Analytics Dashboard](https://github.com/Samidradongare/level-4/blob/f5f956b50b48b218c11909f78507ee6e6bef669b/Screenshot%202026-07-11%20001403.png) |
 
 > ⚠️ **Note:** Screenshots above show the app running in simulated wallet mode. Replace with live production screenshots after deployment.
 
