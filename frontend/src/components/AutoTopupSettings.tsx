@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Sliders, Check } from 'lucide-react';
-import LoadingSpinner from './LoadingSpinner';
+import Card from './Card';
+import Button from './Button';
+import Slider from './Slider';
 
 export const AutoTopupSettings: React.FC = () => {
   const { user, updateSettings } = useAuth();
   
   const [enabled, setEnabled] = useState<boolean>(false);
-  // Values managed in XLM for UI
-  const [threshold, setThreshold] = useState<string>('1.0');
-  const [amount, setAmount] = useState<string>('5.0');
+  const [threshold, setThreshold] = useState<number>(1.0);
+  const [amount, setAmount] = useState<number>(5.0);
   
   const [saving, setSaving] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
@@ -18,9 +19,8 @@ export const AutoTopupSettings: React.FC = () => {
   useEffect(() => {
     if (user) {
       setEnabled(user.auto_topup_enabled);
-      // Stroops to XLM conversions (scale 10^7)
-      setThreshold((parseFloat(user.auto_topup_threshold) / 10000000).toString());
-      setAmount((parseFloat(user.auto_topup_amount) / 10000000).toString());
+      setThreshold(parseFloat(user.auto_topup_threshold) / 10000000);
+      setAmount(parseFloat(user.auto_topup_amount) / 10000000);
     }
   }, [user]);
 
@@ -30,19 +30,15 @@ export const AutoTopupSettings: React.FC = () => {
     setSuccess(false);
     setErrorMsg(null);
 
-    const threshVal = parseFloat(threshold);
-    const amountVal = parseFloat(amount);
-
-    if (isNaN(threshVal) || threshVal < 0 || isNaN(amountVal) || amountVal <= 0) {
+    if (isNaN(threshold) || threshold < 0 || isNaN(amount) || amount <= 0) {
       setErrorMsg('Threshold must be positive and Top-up amount must be greater than zero.');
       setSaving(false);
       return;
     }
 
     try {
-      // Convert XLM to Stroops for database storage
-      const threshStroops = Math.round(threshVal * 10000000);
-      const amountStroops = Math.round(amountVal * 10000000);
+      const threshStroops = Math.round(threshold * 10000000);
+      const amountStroops = Math.round(amount * 10000000);
 
       await updateSettings(enabled, threshStroops, amountStroops);
       setSuccess(true);
@@ -55,21 +51,24 @@ export const AutoTopupSettings: React.FC = () => {
   };
 
   return (
-    <div className="glass-panel" style={{ padding: '24px' }}>
-      <h3 style={{ fontSize: '1.2rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <Sliders size={18} style={{ color: 'var(--primary)' }} />
-        <span>Auto-Topup Settings</span>
-      </h3>
-
-      <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <Card title={
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <Sliders size={20} style={{ color: 'var(--primary)' }} />
+        <span style={{ fontWeight: 600 }}>Auto-Topup Settings</span>
+      </div>
+    }>
+      <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {/* Toggle Switch */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-          <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Enable Auto-Topup</span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <span style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text-primary)', display: 'block' }}>Enable Auto-Topup</span>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Automatically fund escrow when balance is low</span>
+          </div>
           <label style={{
             position: 'relative',
             display: 'inline-block',
-            width: '46px',
-            height: '24px',
+            width: '52px',
+            height: '28px',
             cursor: 'pointer',
           }}>
             <input 
@@ -81,17 +80,17 @@ export const AutoTopupSettings: React.FC = () => {
             <span style={{
               position: 'absolute',
               inset: 0,
-              background: enabled ? 'var(--primary)' : 'rgba(255,255,255,0.08)',
+              background: enabled ? 'var(--primary)' : 'rgba(255,255,255,0.1)',
               borderRadius: '34px',
               transition: 'var(--transition-fast)',
-              boxShadow: enabled ? '0 0 10px var(--primary-glow)' : 'none'
+              boxShadow: enabled ? '0 0 12px var(--primary-glow)' : 'none'
             }} />
             <span style={{
               position: 'absolute',
               content: '""',
-              height: '18px',
-              width: '18px',
-              left: enabled ? '24px' : '4px',
+              height: '22px',
+              width: '22px',
+              left: enabled ? '26px' : '3px',
               bottom: '3px',
               background: 'white',
               borderRadius: '50%',
@@ -101,50 +100,40 @@ export const AutoTopupSettings: React.FC = () => {
         </div>
 
         {enabled && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', animation: 'fadeIn 0.2s ease-in' }}>
-            <div className="form-group" style={{ margin: 0 }}>
-              <label className="form-label">Threshold Trigger (XLM)</label>
-              <input 
-                type="number" 
-                className="form-input" 
-                step="any"
-                min="0"
-                value={threshold}
-                onChange={(e) => setThreshold(e.target.value)}
-                disabled={saving}
-                required
-              />
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                Balances falling below this trigger amount automatically invoke topup.
-              </span>
-            </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', animation: 'fadeIn 0.2s ease-in' }}>
+            <Slider
+              label="Threshold Trigger (XLM)"
+              min={0}
+              max={50}
+              step={0.5}
+              value={threshold}
+              onChange={setThreshold}
+            />
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginTop: '-12px' }}>
+              Balances falling below this amount trigger an automatic top-up.
+            </span>
 
-            <div className="form-group" style={{ margin: 0 }}>
-              <label className="form-label">Top-up Fund Value (XLM)</label>
-              <input 
-                type="number" 
-                className="form-input" 
-                step="any"
-                min="0.0001"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                disabled={saving}
-                required
-              />
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                The amount of XLM to draw from wallet balance when funding.
-              </span>
-            </div>
+            <Slider
+              label="Refill Amount (XLM)"
+              min={1}
+              max={100}
+              step={1}
+              value={amount}
+              onChange={setAmount}
+            />
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginTop: '-12px' }}>
+              The amount of XLM to automatically deposit from your wallet.
+            </span>
           </div>
         )}
 
         {errorMsg && (
           <div style={{
             color: 'var(--error)',
-            fontSize: '0.8rem',
+            fontSize: '0.85rem',
             background: 'var(--error-glow)',
             border: '1px solid var(--error)',
-            padding: '10px',
+            padding: '12px',
             borderRadius: 'var(--radius-sm)',
             textAlign: 'center',
           }}>
@@ -155,35 +144,31 @@ export const AutoTopupSettings: React.FC = () => {
         {success && (
           <div style={{
             color: 'var(--success)',
-            fontSize: '0.8rem',
+            fontSize: '0.85rem',
             background: 'var(--success-glow)',
             border: '1px solid var(--success)',
-            padding: '10px',
+            padding: '12px',
             borderRadius: 'var(--radius-sm)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '6px',
+            gap: '8px',
           }}>
-            <Check size={16} />
+            <Check size={18} />
             <span>Settings saved successfully.</span>
           </div>
         )}
 
-        <button 
+        <Button 
           type="submit" 
-          className="btn btn-secondary" 
-          disabled={saving}
-          style={{ width: '100%', marginTop: '8px' }}
+          variant="secondary" 
+          loading={saving}
+          style={{ width: '100%', padding: '14px', marginTop: '4px' }}
         >
-          {saving ? (
-            <LoadingSpinner size="sm" />
-          ) : (
-            <span>Save Settings</span>
-          )}
-        </button>
+          Save Settings
+        </Button>
       </form>
-    </div>
+    </Card>
   );
 };
 export default AutoTopupSettings;

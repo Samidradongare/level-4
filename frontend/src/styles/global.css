@@ -1,4 +1,5 @@
 @import './variables.css';
+@import './theme.css';
 
 * {
   margin: 0;
@@ -230,3 +231,82 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--error);
   border: 1px solid var(--error);
 }
+
+/* Custom premium styles for ranges and glass panels */
+.range-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--primary) 0%, var(--primary) var(--percent, 50%), rgba(255, 255, 255, 0.1) var(--percent, 50%), rgba(255, 255, 255, 0.1) 100%);
+  outline: none;
+  transition: background var(--transition-fast);
+}
+
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+  transition: transform var(--transition-fast);
+}
+
+.range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.range-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 0;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+  transition: transform var(--transition-fast);
+}
+
+.range-slider::-moz-range-thumb:hover {
+  transform: scale(1.15);
+}
+
+/* Funded Badge Style */
+.badge-funded {
+  background: rgba(16, 185, 129, 0.12);
+  color: rgb(52, 211, 153);
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Blue Gradient Card styling */
+.blue-gradient-card {
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.4) 0%, rgba(13, 20, 38, 0.75) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 0 16px rgba(59, 130, 246, 0.1);
+}
+
+.blue-gradient-card:hover {
+  border-color: rgba(59, 130, 246, 0.35);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45), inset 0 0 20px rgba(59, 130, 246, 0.15);
+}
+
+/* Layout Animation keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+

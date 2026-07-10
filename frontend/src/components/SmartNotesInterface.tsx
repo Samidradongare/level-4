@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import useSmartNotes from '../hooks/useSmartNotes';
 import { BookOpen, Sparkles, Copy, Check, Info } from 'lucide-react';
-import LoadingSpinner from './LoadingSpinner';
+import Card from './Card';
+import Button from './Button';
 
 interface SmartNotesInterfaceProps {
   onSummaryGenerated: () => void;
@@ -45,44 +46,47 @@ export const SmartNotesInterface: React.FC<SmartNotesInterfaceProps> = ({ onSumm
     <div style={{ display: 'grid', gridTemplateColumns: summary ? '1fr 1fr' : '1fr', gap: '24px', width: '100%' }}>
       
       {/* Input panel */}
-      <div className="glass-panel" style={{ padding: '24px', height: 'fit-content' }}>
-        <h3 style={{ fontSize: '1.2rem', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <BookOpen size={18} style={{ color: 'var(--primary)' }} />
-          <span>SmartNotes AI Summarizer</span>
-        </h3>
-
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <Card
+        style={{ height: 'fit-content' }}
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <BookOpen size={22} style={{ color: 'var(--primary)' }} />
+            <span style={{ fontWeight: 600 }}>SmartNotes AI Summarizer</span>
+          </div>
+        }
+      >
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div className="form-group" style={{ margin: 0 }}>
-            <label className="form-label">Messy Study Notes / Lecture Transcripts</label>
+            <label className="form-label" style={{ fontSize: '0.95rem' }}>Messy Study Notes / Lecture Transcripts</label>
             <textarea 
               className="form-textarea"
-              style={{ minHeight: '220px', resize: 'vertical', lineHeight: '1.5' }}
+              style={{ minHeight: '220px', resize: 'vertical', lineHeight: '1.6', fontSize: '0.95rem', padding: '16px' }}
               placeholder="Paste raw lectures, messy study notes, or meeting transcripts here..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               disabled={loading}
               required
             />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '8px', padding: '0 4px' }}>
               <span>Character count: {notes.length}</span>
-              <span>Estimated Cost: ~{costXlm.toFixed(3)} XLM</span>
+              <span style={{ color: 'var(--primary)', fontWeight: 500 }}>Estimated Cost: ~{costXlm.toFixed(3)} XLM</span>
             </div>
           </div>
 
           <div className="form-group" style={{ margin: 0 }}>
-            <label className="form-label">Summarization Profile</label>
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <label className="form-label" style={{ fontSize: '0.95rem', marginBottom: '12px' }}>Summarization Profile</label>
+            <div style={{ display: 'flex', gap: '12px' }}>
               {['balanced', 'bulleted', 'detailed'].map(profile => (
-                <button
+                <Button
                   key={profile}
                   type="button"
                   onClick={() => setStyle(profile)}
-                  className={`btn ${style === profile ? 'btn-primary' : 'btn-secondary'}`}
-                  style={{ flex: 1, padding: '8px', textTransform: 'capitalize', fontSize: '0.85rem' }}
+                  variant={style === profile ? 'primary' : 'secondary'}
+                  style={{ flex: 1, padding: '12px 8px', textTransform: 'capitalize', fontSize: '0.9rem', fontWeight: 500 }}
                   disabled={loading}
                 >
                   {profile}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -90,10 +94,10 @@ export const SmartNotesInterface: React.FC<SmartNotesInterfaceProps> = ({ onSumm
           {error && (
             <div style={{
               color: 'var(--error)',
-              fontSize: '0.8rem',
+              fontSize: '0.85rem',
               background: 'var(--error-glow)',
               border: '1px solid var(--error)',
-              padding: '10px',
+              padding: '12px',
               borderRadius: 'var(--radius-sm)',
               textAlign: 'center',
             }}>
@@ -101,70 +105,62 @@ export const SmartNotesInterface: React.FC<SmartNotesInterfaceProps> = ({ onSumm
             </div>
           )}
 
-          <button 
+          <Button 
             type="submit" 
-            className="btn btn-primary" 
-            style={{ padding: '12px' }}
+            variant="primary" 
+            style={{ padding: '16px', marginTop: '8px', fontSize: '1rem', width: '100%' }}
             disabled={loading || !notes.trim()}
+            loading={loading}
           >
-            {loading ? (
-              <LoadingSpinner size="sm" label="Generating summary..." />
-            ) : (
-              <>
-                <Sparkles size={16} />
-                <span>Generate Study Summary</span>
-              </>
-            )}
-          </button>
+            <Sparkles size={18} style={{ marginRight: '6px' }} />
+            <span>Generate Study Summary</span>
+          </Button>
         </form>
-      </div>
+      </Card>
 
       {/* Output panel */}
       {summary && (
-        <div className="glass-panel" style={{ 
-          padding: '24px', 
-          display: 'flex', 
-          flexDirection: 'column', 
-          height: 'fit-content',
-          animation: 'fadeIn 0.3s ease-out'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{ fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Sparkles size={18} style={{ color: 'var(--success)' }} />
-              <span>AI Study Summary</span>
-            </h3>
-            
-            <button 
-              onClick={handleCopy}
-              className="btn btn-secondary"
-              style={{ padding: '6px 12px', fontSize: '0.8rem' }}
-            >
-              {copied ? (
-                <>
-                  <Check size={14} style={{ color: 'var(--success)' }} />
-                  <span style={{ color: 'var(--success)' }}>Copied!</span>
-                </>
-              ) : (
-                <>
-                  <Copy size={14} />
-                  <span>Copy</span>
-                </>
-              )}
-            </button>
-          </div>
-
+        <Card
+          style={{ height: 'fit-content' }}
+          title={
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Sparkles size={22} style={{ color: 'var(--success)' }} />
+                <span style={{ fontWeight: 600 }}>AI Study Summary</span>
+              </div>
+              
+              <Button 
+                onClick={handleCopy}
+                variant="secondary"
+                style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+              >
+                {copied ? (
+                  <>
+                    <Check size={16} style={{ color: 'var(--success)', marginRight: '6px' }} />
+                    <span style={{ color: 'var(--success)' }}>Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy size={16} style={{ marginRight: '6px' }} />
+                    <span>Copy</span>
+                  </>
+                )}
+              </Button>
+            </div>
+          }
+        >
           <div style={{
-            background: 'rgba(255,255,255,0.01)',
-            border: '1px solid rgba(255,255,255,0.04)',
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.05)',
             borderRadius: 'var(--radius-md)',
-            padding: '20px',
-            fontSize: '0.95rem',
-            lineHeight: '1.6',
+            padding: '24px',
+            fontSize: '1rem',
+            lineHeight: '1.7',
             color: 'var(--text-primary)',
             whiteSpace: 'pre-wrap',
-            maxHeight: '340px',
+            maxHeight: '400px',
             overflowY: 'auto',
-            marginBottom: '16px',
+            marginBottom: '20px',
           }}>
             {summary}
           </div>
@@ -173,19 +169,20 @@ export const SmartNotesInterface: React.FC<SmartNotesInterfaceProps> = ({ onSumm
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              fontSize: '0.8rem',
+              gap: '8px',
+              fontSize: '0.85rem',
               color: 'var(--text-muted)',
-              borderTop: '1px solid rgba(255,255,255,0.05)',
-              paddingTop: '12px',
+              borderTop: '1px solid rgba(255,255,255,0.08)',
+              paddingTop: '16px',
             }}>
-              <Info size={14} />
+              <Info size={16} />
               <span>Summary generated. Billed {parseInt(sessionCost) / 10000000} XLM on-chain.</span>
             </div>
           )}
-        </div>
+        </Card>
       )}
     </div>
   );
 };
+
 export default SmartNotesInterface;

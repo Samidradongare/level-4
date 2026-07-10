@@ -1,6 +1,8 @@
 import React from 'react';
 import { UsageMetric, TransactionRecord } from '../hooks/useAnalytics';
-import { TrendingUp, BarChart2, Award } from 'lucide-react';
+import { TrendingUp, BarChart2, Award, Zap } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import Card from './Card';
 
 interface AnalyticsDashboardProps {
   metrics: UsageMetric[];
@@ -21,157 +23,149 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ metrics,
   const avgTxStroops = totalTransactions > 0 ? Math.round(totalSpentStroops / totalTransactions) : 0;
   const avgTxXlm = avgTxStroops / 10000000;
 
-  // Max value for SVG height calculations
-  const maxUsageCount = metrics.length > 0 ? Math.max(...metrics.map(m => m.usage_count), 4) : 4;
+  // Format data for Recharts
+  const chartData = metrics.map(m => ({
+    date: m.date.substring(5), // MM-DD format
+    usage: m.usage_count,
+    fullDate: m.date
+  }));
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div style={{
+          background: 'rgba(5, 8, 22, 0.9)',
+          border: '1px solid rgba(59, 130, 246, 0.3)',
+          borderRadius: 'var(--radius-sm)',
+          padding: '12px',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+          backdropFilter: 'blur(8px)',
+        }}>
+          <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '4px' }}>{label}</p>
+          <p style={{ margin: 0, color: 'var(--primary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Zap size={14} />
+            {payload[0].value} Requests
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
       
       {/* Top Cards grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
         
         {/* Card 1 */}
-        <div className="glass-panel" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ padding: '12px', borderRadius: 'var(--radius-md)', background: 'var(--primary-glow)', color: 'var(--primary)' }}>
-            <TrendingUp size={22} />
+        <Card style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div style={{ padding: '14px', borderRadius: '14px', background: 'var(--primary-glow)', color: 'var(--primary)', boxShadow: '0 0 20px rgba(59, 130, 246, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <TrendingUp size={24} />
           </div>
           <div>
-            <h5 style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>Total Volume Spent</h5>
-            <span style={{ fontSize: '1.4rem', fontFamily: 'var(--font-display)', fontWeight: 700 }}>
-              {totalSpentXlm.toFixed(2)} XLM
-            </span>
+            <h5 style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>Total Volume</h5>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+              <span style={{ fontSize: '1.6rem', fontFamily: 'var(--font-display)', fontWeight: 800, color: 'var(--text-primary)' }}>
+                {totalSpentXlm.toFixed(2)}
+              </span>
+              <span style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: 600 }}>XLM</span>
+            </div>
           </div>
-        </div>
+        </Card>
 
         {/* Card 2 */}
-        <div className="glass-panel" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ padding: '12px', borderRadius: 'var(--radius-md)', background: 'var(--success-glow)', color: 'var(--success)' }}>
-            <BarChart2 size={22} />
+        <Card style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div style={{ padding: '14px', borderRadius: '14px', background: 'var(--success-glow)', color: 'var(--success)', boxShadow: '0 0 20px rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <BarChart2 size={24} />
           </div>
           <div>
-            <h5 style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>Average Charge</h5>
-            <span style={{ fontSize: '1.4rem', fontFamily: 'var(--font-display)', fontWeight: 700 }}>
-              {avgTxXlm.toFixed(3)} XLM
-            </span>
+            <h5 style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>Avg Charge</h5>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+              <span style={{ fontSize: '1.6rem', fontFamily: 'var(--font-display)', fontWeight: 800, color: 'var(--text-primary)' }}>
+                {avgTxXlm.toFixed(3)}
+              </span>
+              <span style={{ fontSize: '0.9rem', color: 'var(--success)', fontWeight: 600 }}>XLM</span>
+            </div>
           </div>
-        </div>
+        </Card>
 
         {/* Card 3 */}
-        <div className="glass-panel" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ padding: '12px', borderRadius: 'var(--radius-md)', background: 'rgba(139, 92, 246, 0.1)', color: 'rgb(139, 92, 246)' }}>
-            <Award size={22} />
+        <Card style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div style={{ padding: '14px', borderRadius: '14px', background: 'rgba(139, 92, 246, 0.15)', color: 'rgb(167, 139, 250)', boxShadow: '0 0 20px rgba(139, 92, 246, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Award size={24} />
           </div>
           <div>
-            <h5 style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>Total Requests</h5>
-            <span style={{ fontSize: '1.4rem', fontFamily: 'var(--font-display)', fontWeight: 700 }}>
-              {totalTransactions} actions
-            </span>
+            <h5 style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px' }}>Total Requests</h5>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+              <span style={{ fontSize: '1.6rem', fontFamily: 'var(--font-display)', fontWeight: 800, color: 'var(--text-primary)' }}>
+                {totalTransactions}
+              </span>
+              <span style={{ fontSize: '0.9rem', color: 'rgb(167, 139, 250)', fontWeight: 600 }}>Actions</span>
+            </div>
           </div>
-        </div>
+        </Card>
       </div>
 
-      {/* SVG Usage Chart */}
-      <div className="glass-panel" style={{ padding: '24px' }}>
-        <h3 style={{ fontSize: '1.2rem', marginBottom: '20px' }}>AI Note Summarizations by Day</h3>
-        
+      {/* Usage Chart */}
+      <Card title={
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <BarChart2 size={20} style={{ color: 'var(--primary)' }} />
+          <span style={{ fontWeight: 600 }}>AI Note Summarizations by Day</span>
+        </div>
+      }>
         {loading ? (
-          <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)' }}>
+          <div style={{ height: '260px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)' }}>
             Aggregating usage metrics...
           </div>
         ) : metrics.length === 0 ? (
-          <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+          <div style={{ height: '260px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)', fontSize: '0.95rem' }}>
             No summary logs logged for the past 7 days.
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* SVG Vector Drawing */}
-            <svg viewBox="0 0 600 220" style={{ width: '100%', height: 'auto', background: 'transparent' }}>
-              <defs>
-                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--primary)" />
-                  <stop offset="100%" stopColor="hsla(var(--primary-hue), 100%, 60%, 0.15)" />
-                </linearGradient>
-                <filter id="glow">
-                  <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                  <feMerge>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
-              </defs>
-
-              {/* Grid lines */}
-              <line x1="40" y1="20" x2="580" y2="20" stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
-              <line x1="40" y1="70" x2="580" y2="70" stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
-              <line x1="40" y1="120" x2="580" y2="120" stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
-              <line x1="40" y1="170" x2="580" y2="170" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
-
-              {/* Y Axis Labels */}
-              <text x="15" y="24" fill="var(--text-muted)" fontSize="10" fontFamily="monospace">
-                {maxUsageCount}
-              </text>
-              <text x="15" y="98" fill="var(--text-muted)" fontSize="10" fontFamily="monospace">
-                {Math.round(maxUsageCount / 2)}
-              </text>
-              <text x="15" y="174" fill="var(--text-muted)" fontSize="10" fontFamily="monospace">
-                0
-              </text>
-
-              {/* Render Bars */}
-              {metrics.map((m, idx) => {
-                const width = 42;
-                const spacing = (500 / metrics.length);
-                const x = 50 + idx * spacing + (spacing - width) / 2;
-                
-                const height = maxUsageCount > 0 ? (m.usage_count / maxUsageCount) * 150 : 0;
-                const y = 170 - height;
-                
-                const dateLabel = m.date.substring(5); // MM-DD format
-
-                return (
-                  <g key={m.date}>
-                    {/* Glowing bar */}
-                    <rect 
-                      x={x} 
-                      y={y} 
-                      width={width} 
-                      height={Math.max(height, 2)} 
-                      fill="url(#barGradient)" 
-                      rx="4"
-                      filter="url(#glow)"
-                      style={{ transition: 'all 0.5s ease' }}
-                    />
-                    
-                    {/* Hover text label */}
-                    <text 
-                      x={x + width / 2} 
-                      y={y - 8} 
-                      fill="var(--text-primary)" 
-                      fontSize="10" 
-                      fontWeight="600"
-                      textAnchor="middle"
-                    >
-                      {m.usage_count > 0 ? m.usage_count : ''}
-                    </text>
-
-                    {/* Date bottom labels */}
-                    <text 
-                      x={x + width / 2} 
-                      y="190" 
-                      fill="var(--text-secondary)" 
-                      fontSize="10" 
-                      textAnchor="middle"
-                    >
-                      {dateLabel}
-                    </text>
-                  </g>
-                );
-              })}
-            </svg>
+          <div style={{ height: '280px', width: '100%', marginTop: '10px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                data={chartData}
+                margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+              >
+                <defs>
+                  <linearGradient id="colorUsage" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.4}/>
+                    <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                <XAxis 
+                  dataKey="date" 
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
+                  dy={10}
+                />
+                <YAxis 
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
+                  allowDecimals={false}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Area 
+                  type="monotone" 
+                  dataKey="usage" 
+                  stroke="var(--primary)" 
+                  strokeWidth={3}
+                  fillOpacity={1} 
+                  fill="url(#colorUsage)" 
+                  animationDuration={1500}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 };
+
 export default AnalyticsDashboard;

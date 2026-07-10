@@ -1,0 +1,40 @@
+/* Extra animation and helper utilities */
+
+.fade-in {
+  animation: fadeIn var(--transition-normal) ease-out both;
+}
+
+.lift-hover {
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.lift-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Grid layout utility */
+.grid-2col {
+  display: grid;
+  grid-template-columns: minmax(320px, 400px) 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .grid-2col {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .nav-text {
+    display: none;
+  }
+  .grid-2col {
+    gap: 20px;
+  }
+  .app-header {
+    padding: 12px 16px !important;
+  }
+}
