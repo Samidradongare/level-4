@@ -12,7 +12,7 @@ UsagePay is a production-ready metered payment dApp built on the Stellar testnet
 
 | **Product UI** |
 |:---:|
-| ![Product UI](c:\Users\Lenovo\Pictures\Screenshots\Screenshot 2026-07-11 001232.png) |
+| ![Product UI](https://github.com/Samidradongare/level-4/blob/f5f956b50b48b218c11909f78507ee6e6bef669b/Screenshot%202026-07-11%20001403.png) |
 
 | **Mobile Responsive Design** |
 |:---:|
