@@ -42,8 +42,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(JSON.parse(storedUser));
     }
     
-    setIsSimulatedWallet(!freighterWallet.isExtensionAvailable());
+    // Allow the browser a brief moment to inject the extension
+    const timer = setTimeout(() => {
+      setIsSimulatedWallet(!freighterWallet.isExtensionAvailable());
+    }, 200);
+
     setLoading(false);
+    return () => clearTimeout(timer);
   }, []);
 
   const connectWallet = async () => {
