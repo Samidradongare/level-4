@@ -1,31 +1,15 @@
-
-
-// Interface matching Freighter global injection
-export interface FreighterAPI {
-  isConnected: () => Promise<boolean>;
-  getPublicKey: () => Promise<string>;
-  signMessage: (message: string, opts?: { address?: string }) => Promise<string>;
-  signTransaction: (xdr: string, opts?: { network?: string; networkPassphrase?: string }) => Promise<string>;
-}
+import { isConnected, getAddress, signMessage, signTransaction } from '@stellar/freighter-api';
 
 // Memory cache for mock wallet in simulated mode
 let mockWalletAddress = '';
 
 export class FreighterWalletService {
   /**
-   * Check if Freighter extension is installed in browser
+   * Check if Freighter extension is installed in browser (synchronous check)
    */
   isExtensionAvailable(): boolean {
     const win = window as any;
-    return !!(win.stellarFreighter || (win.freighterApi && win.freighterApi.isConnected));
-  }
-
-  /**
-   * Return the Freighter API object if available
-   */
-  private getApi(): any {
-    const win = window as any;
-    return win.stellarFreighter || win.freighterApi;
+    return !!(win.stellarFreighter || win.freighterApi);
   }
 
   /**
@@ -43,11 +27,19 @@ export class FreighterWalletService {
     }
 
     try {
-      const api = this.getApi();
-      const address = await api.getPublicKey();
-      return address;
+      // First verify connection status
+      const connectionStatus = await isConnected();
+      if (!connectionStatus || !connectionStatus.isConnected) {
+        throw new Error('Freighter extension is present but not connected. Please unlock your wallet.');
+      }
+
+      const res = await getAddress();
+      if (res.error) {
+        throw new Error(res.error);
+      }
+      return res.address;
     } catch (error: any) {
-      throw new Error(`Freighter error retrieving public key: ${error.message}`);
+      throw new Error(`Freighter error retrieving address: ${error.message || error}`);
     }
   }
 
@@ -61,25 +53,30 @@ export class FreighterWalletService {
     }
 
     try {
-      const api = this.getApi();
-      
-      // Different versions of Freighter support different signMessage inputs
-      let signature = '';
-      if (api.signMessage) {
-        // Some Freighter API versions take (message, { address })
-        signature = await api.signMessage(message, { address: userAddress });
-      } else if (api.signBlob) {
-        // Older versions
-        const blob = btoa(message);
-        const signed = await api.signBlob(blob, { address: userAddress });
-        signature = signed.signature || signed;
-      } else {
-        throw new Error('Freighter does not support signMessage on this browser.');
+      const res = await signMessage(message, { address: userAddress });
+      if (res.error) {
+        throw new Error(res.error);
       }
       
-      return signature;
+      if (!res.signedMessage) {
+        throw new Error('No signature returned from Freighter.');
+      }
+
+      // Convert signedMessage to string format (or binary array to base64 if needed)
+      if (typeof res.signedMessage === 'string') {
+        return res.signedMessage;
+      }
+      if (res.signedMessage) {
+        const bytes = new Uint8Array(res.signedMessage);
+        let binary = '';
+        for (let i = 0; i < bytes.byteLength; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        return btoa(binary);
+      }
+      throw new Error('Signed message is in an unsupported format.');
     } catch (error: any) {
-      throw new Error(`Failed to sign authorization message: ${error.message}`);
+      throw new Error(`Failed to sign authorization message: ${error.message || error}`);
     }
   }
 
@@ -92,11 +89,17 @@ export class FreighterWalletService {
     }
 
     try {
-      const api = this.getApi();
-      const signedXdr = await api.signTransaction(xdr, { network });
-      return signedXdr;
+      const networkPassphrase = network === 'TESTNET'
+        ? 'Test SDF Network ; September 2015'
+        : 'Public Global Stellar Network ; October 2015';
+
+      const res = await signTransaction(xdr, { networkPassphrase });
+      if (res.error) {
+        throw new Error(res.error);
+      }
+      return res.signedTxXdr;
     } catch (error: any) {
-      throw new Error(`Transaction signing canceled by user: ${error.message}`);
+      throw new Error(`Transaction signing canceled or failed: ${error.message || error}`);
     }
   }
 }
