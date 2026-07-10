@@ -4,7 +4,7 @@ UsagePay is a production-ready metered payment dApp built on the Stellar testnet
 
 ### 🌐 Live Links & Demo
 - **Live Application:** https://level-4-639v.vercel.app/
-- **API Server:** `<!-- TODO: Add Railway/Render URL after deployment -->`
+- **API Server:** https://usagepay-backend.onrender.com
 - **Soroban Contract Address:** `CA75UOY4D6I55OETD6Y6ZPXNGL2WCS5WJYYA3R3F5OZHMXL3F4DLUZPP`
 - **Demo Video:** `<!-- TODO: Add YouTube URL after recording -->`
 
