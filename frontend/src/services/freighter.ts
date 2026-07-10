@@ -1,4 +1,4 @@
-import { isConnected, getAddress, signMessage, signTransaction } from '@stellar/freighter-api';
+import { isConnected, requestAccess, signMessage, signTransaction } from '@stellar/freighter-api';
 
 // Memory cache for mock wallet in simulated mode
 let mockWalletAddress = '';
@@ -33,7 +33,7 @@ export class FreighterWalletService {
         throw new Error('Freighter extension is present but not connected. Please unlock your wallet.');
       }
 
-      const res = await getAddress();
+      const res = await requestAccess();
       if (res.error) {
         throw new Error(res.error);
       }
