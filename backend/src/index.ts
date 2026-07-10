@@ -22,7 +22,8 @@ const app = express();
 // Configure CORS
 const corsOptions = {
   origin: function (origin: any, callback: any) {
-    if (!origin || env.FREIGHTER_ALLOWED_ORIGINS.indexOf(origin) !== -1 || env.FREIGHTER_ALLOWED_ORIGINS.includes('*')) {
+    const isVercelOrigin = origin && (origin.endsWith('.vercel.app') || /^https:\/\/.*\.vercel\.app$/.test(origin));
+    if (!origin || env.FREIGHTER_ALLOWED_ORIGINS.indexOf(origin) !== -1 || env.FREIGHTER_ALLOWED_ORIGINS.includes('*') || isVercelOrigin) {
       callback(null, true);
     } else {
       callback(new Error(`CORS policy blockage: origin ${origin} is not allowed.`));

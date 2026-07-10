@@ -24,7 +24,8 @@ export const env = {
   // API keys
   OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
   FREIGHTER_ALLOWED_ORIGINS: (process.env.FREIGHTER_ALLOWED_ORIGINS || 'http://localhost:5173')
-    .split(','),
+    .split(',')
+    .map(origin => origin.trim()),
 
   // Settings
   COST_PER_SUMMARY_STROOPS: parseInt(process.env.COST_PER_SUMMARY_STROOPS || '5000000', 10),
