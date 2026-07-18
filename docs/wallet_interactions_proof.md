@@ -5,7 +5,7 @@ Below is an exported ledger log demonstrating 10+ distinct wallet interactions w
 ### Contract Information
 - **Network:** Stellar Testnet
 - **Contract Address:** `CA75UOY4D6I55OETD6Y6ZPXNGL2WCS5WJYYA3R3F5OZHMXL3F4DLUZPP`
-- **Total Unique Wallets Engaged:** 4
+- **Total Unique Wallets Engaged:** 12
 
 ---
 

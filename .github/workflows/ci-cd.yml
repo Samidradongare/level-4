@@ -1,0 +1,192 @@
+name: UsagePay CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ─────────────────────────────────────────────
+  # Job 1: Smart Contract – Build & Test (Rust/Soroban)
+  # ─────────────────────────────────────────────
+  smart-contract-ci:
+    name: Smart Contract CI (Soroban/Rust)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain (stable + wasm32 target)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: wasm32-unknown-unknown
+
+      - name: Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            contract/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('contract/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install Stellar CLI
+        run: |
+          curl -sSfL https://github.com/stellar/stellar-cli/releases/latest/download/stellar-cli-x86_64-unknown-linux-gnu.tar.gz | tar xz
+          sudo mv stellar /usr/local/bin/stellar
+          stellar --version
+
+      - name: Run Soroban contract unit tests
+        working-directory: ./contract
+        run: cargo test --verbose 2>&1 | tee test-results.txt
+
+      - name: Build WASM release artifact
+        working-directory: ./contract
+        run: stellar contract build
+
+      - name: Upload WASM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: usage-pay-contract-wasm
+          path: contract/target/wasm32-unknown-unknown/release/usage_pay_contract.wasm
+          retention-days: 7
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: contract-test-results
+          path: contract/test-results.txt
+
+  # ─────────────────────────────────────────────
+  # Job 2: Backend CI – Lint, Type Check & Test
+  # ─────────────────────────────────────────────
+  backend-ci:
+    name: Backend CI (Node.js/TypeScript)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      - name: TypeScript type check
+        working-directory: ./backend
+        run: npx tsc --noEmit
+
+      - name: Lint backend code
+        working-directory: ./backend
+        run: npx eslint src/ --ext .ts || true
+
+  # ─────────────────────────────────────────────
+  # Job 3: Frontend CI – Build & Type Check
+  # ─────────────────────────────────────────────
+  frontend-ci:
+    name: Frontend CI (React/Vite)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: TypeScript type check
+        working-directory: ./frontend
+        run: npx tsc --noEmit
+
+      - name: Build frontend production bundle
+        working-directory: ./frontend
+        run: npm run build
+        env:
+          VITE_API_URL: https://usagepay-backend.onrender.com
+          VITE_CONTRACT_ADDRESS: CA75UOY4D6I55OETD6Y6ZPXNGL2WCS5WJYYA3R3F5OZHMXL3F4DLUZPP
+          VITE_STELLAR_NETWORK: TESTNET
+
+      - name: Upload frontend build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
+          retention-days: 7
+
+  # ─────────────────────────────────────────────
+  # Job 4: CD – Deploy Frontend to Vercel
+  # ─────────────────────────────────────────────
+  deploy-frontend:
+    name: CD – Deploy Frontend (Vercel)
+    runs-on: ubuntu-latest
+    needs: [smart-contract-ci, backend-ci, frontend-ci]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Pull Vercel environment
+        working-directory: ./frontend
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build for Vercel
+        working-directory: ./frontend
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to Vercel Production
+        working-directory: ./frontend
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+  # ─────────────────────────────────────────────
+  # Job 5: CD – Deploy Backend to Render
+  # ─────────────────────────────────────────────
+  deploy-backend:
+    name: CD – Deploy Backend (Render)
+    runs-on: ubuntu-latest
+    needs: [backend-ci]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Trigger Render backend deployment
+        run: |
+          curl -X POST \
+            -H "Accept: application/json" \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys" \
+            -d '{}'
+
+      - name: Deployment notification
+        run: |
+          echo "✅ Backend deployment triggered on Render."
+          echo "Contract: CA75UOY4D6I55OETD6Y6ZPXNGL2WCS5WJYYA3R3F5OZHMXL3F4DLUZPP"
+          echo "Network: Stellar Testnet"

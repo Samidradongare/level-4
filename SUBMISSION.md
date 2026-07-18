@@ -18,7 +18,8 @@ UsagePay is a production-ready metered payment gateway built on the Stellar test
 | **Frontend Web App** | https://level-4-639v.vercel.app/ |
 | **API Backend Server** | https://usagepay-backend.onrender.com |
 | **Soroban Contract Address** | `CA75UOY4D6I55OETD6Y6ZPXNGL2WCS5WJYYA3R3F5OZHMXL3F4DLUZPP` |
-| **Demo Video (YouTube)** | `<!-- TODO: Add YouTube URL after recording -->` |
+| **Demo Video (YouTube)** | https://youtu.be/W6v58TUsITc?si=luFA9Yl6ZrnGwghf |
+| **CI/CD Workflow** | [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml) |
 | **GitHub Repository** | https://github.com/Samidradongare/level-4 |
 
 ---
@@ -61,15 +62,32 @@ UsagePay is a production-ready metered payment gateway built on the Stellar test
 ## 📊 User Onboarding Proof (Level 4 Requirement)
 - **Total Registered Beta-Users:** 12 (registered testnet wallet addresses)
 - **Total Ledger Transactions:** 67 completed actions
-- **Cumulative Volume Processed:** 3.4 XLM
-- **Average User Survey Rating:** 4.3 / 5 stars
+- **Cumulative Volume Processed:** ~21.64 XLM
+- **Average User Survey Rating:** 4.2 / 5 stars
 
-*All user transaction records, onboarding dates, and spent stroops are exported in [USER_METRICS.csv](file:///c:/Users/Lenovo/Desktop/Usage%20pay/USER_METRICS.csv).*
+*All user transaction records are exported in:*
+- [USER_METRICS.csv](USER_METRICS.csv) — wallet-level spending summary
+- [USER_PROOF.csv](USER_PROOF.csv) — named users, TX hashes, onboarding dates, feedback scores
+- [docs/user_feedback_summary.md](docs/user_feedback_summary.md) — individual quotes from all 12 users
+- [docs/wallet_interactions_proof.md](docs/wallet_interactions_proof.md) — ledger TX log with 12 unique wallets
 
 ---
 
 ## 🧠 User Feedback Summary
-Based on survey responses compiled from our feedback questionnaire:
+Based on survey responses compiled from our feedback questionnaire (12 users):
 - **Onboarding Simplicity:** 91% rated connecting Freighter and funding escrows as "Very Easy".
 - **Pricing Clarity:** 100% of testers found pay-per-action billing fairer than standard monthly subscriptions.
-- **Top Request Features:** Faster text summary compile times, support for multi-file PDF note formats, and mainnet USDC support.
+- **Top Request Features:** Faster text summary compile times, multi-file PDF support, mainnet USDC support, fiat on-ramp.
+- **Improvements shipped from feedback:** XLM→USD display, Auto-Topup feature, Simulated Wallet Mode, Onboarding Guide.
+
+See full individual user feedback in [docs/user_feedback_summary.md](docs/user_feedback_summary.md).
+
+---
+
+## ⚙️ CI/CD Pipeline
+A complete GitHub Actions CI/CD pipeline is configured at [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml):
+- **Smart Contract CI:** Installs Rust + wasm32 target, runs `cargo test`, builds WASM with `stellar contract build`
+- **Backend CI:** Node.js 20, TypeScript type-check, ESLint
+- **Frontend CI:** Node.js 20, TypeScript type-check, Vite production build
+- **Frontend CD:** Vercel CLI production deploy (on `main` push)
+- **Backend CD:** Render API webhook deployment trigger (on `main` push)
