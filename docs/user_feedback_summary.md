@@ -6,11 +6,10 @@
 **Average Rating:** ⭐ **4.6 / 5.0**
 **Freighter Wallet Connection Success Rate:** 🟢 **100% (11/11)**
 
-> 📋 **Google Form Link:**
-> https://forms.gle/UsagePayFeedback2026
+> 📋 **Google Form Link:** *(add your Google Form URL here)*
 >
-> 📊 **Response Sheet (View + Edit access):**
-> Share your Google Sheets response spreadsheet with judges directly via the Google Form → Responses → Sheets icon. Grant **Editor** access to the judges' email.
+> 📊 **Response Sheet (Editor access granted to judges):**
+> https://docs.google.com/spreadsheets/d/1gVuTdtlsWwoB5H7r4EYBYmkZvtf8-7sakyvPcW4L61A/edit?gid=1970941831#gid=1970941831
 
 ---
 
