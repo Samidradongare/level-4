@@ -64,10 +64,12 @@ UsagePay is a production-ready metered payment gateway built on the Stellar test
 ---
 
 ## 📊 User Onboarding Proof (Level 4 Requirement)
-- **Total Registered Beta-Users:** 12 (registered testnet wallet addresses)
+- **Total Registered Beta-Users:** 11 (verified real users via Google Form)
 - **Total Ledger Transactions:** 67 completed actions
 - **Cumulative Volume Processed:** ~21.64 XLM
-- **Average User Survey Rating:** 4.2 / 5 stars
+- **Average User Survey Rating:** ⭐ 4.6 / 5.0 (from 11 real Google Form responses)
+- **Freighter Wallet Connection Success Rate:** 🟢 100% (11/11 users)
+- **5-Star Ratings:** 8 out of 11 (72.7%)
 
 *All user transaction records are exported in:*
 - [USER_METRICS.csv](USER_METRICS.csv) — wallet-level spending summary
@@ -78,11 +80,11 @@ UsagePay is a production-ready metered payment gateway built on the Stellar test
 ---
 
 ## 🧠 User Feedback Summary
-Based on survey responses compiled from our feedback questionnaire (12 users):
-- **Onboarding Simplicity:** 91% rated connecting Freighter and funding escrows as "Very Easy".
-- **Pricing Clarity:** 100% of testers found pay-per-action billing fairer than standard monthly subscriptions.
-- **Top Request Features:** Faster text summary compile times, multi-file PDF support, mainnet USDC support, fiat on-ramp.
-- **Improvements shipped from feedback:** XLM→USD display, Auto-Topup feature, Simulated Wallet Mode, Onboarding Guide.
+Based on **11 real Google Form survey responses**:
+- **Freighter Connection Success:** 100% of users connected their wallet successfully (11/11).
+- **Average Rating:** ⭐ **4.6 / 5.0** — 8 users gave 5 stars (72.7%), 2 gave 4 stars, 1 gave 3 stars.
+- **Highlight Quote:** *"Excellent project with a practical real-world use case. The implementation is clean, user-friendly, and demonstrates strong technical skills. It has great potential for real-world adoption."* — Shantanu Udhane
+- **Improvements actioned from feedback:** UI polish, scalability roadmap, follow-up with lower-score users.
 
 See full individual user feedback in [docs/user_feedback_summary.md](docs/user_feedback_summary.md).
 
